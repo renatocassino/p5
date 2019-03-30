@@ -1,13 +1,14 @@
 var cols, rows
-var w = 10
+var w = 50
 var grid = []
 var current
 var stack = []
 var state = 'DRAWING'
+var backDrawing = false
 
 function setup() { 
   createCanvas(400, 400)
-  // frameRate(50)
+  frameRate(5)
   cols = floor(width/w)
   rows = floor(height/w)
 
@@ -19,6 +20,7 @@ function setup() {
   }
 
   current = grid[0]
+  grid[grid.length-1].final = true
 } 
 
 function draw() { 
@@ -38,14 +40,37 @@ function draw() {
       removeWall(current, next) // step 3
       current = next // step 4
     } else if (stack.length > 0) {
-      do {
+      if (backDrawing) {
         current = stack.pop()
-      } while(!current.getRandomNeighbor() && stack.length > 0)
+      } else {
+        do {
+          current = stack.pop()
+        } while(!current.getRandomNeighbor() && stack.length > 0)
+      }
     } else {
       state = 'SEARCH'
     }
   } else if (state === 'SEARCH') {
-    
+    if (current.final) {
+      state = 'FINISHED'
+      return
+    }
+
+    current.walked = true
+    current.walking = true
+    var next = current.getFirstNeighbor()
+    if (next) {
+      next.walked = true
+      next.walking = true
+      stack.push(current)
+      current = next
+    } else if (stack.length > 0) {
+      current.walking = false
+      current = stack.pop()
+    }
+  } else if (state === 'FINISHED') {
+    alert('o/')
+    state = 'CLOSE'
   }
 }
 
@@ -80,8 +105,11 @@ function index (i, j) {
 function Cell(i, j) {
   this.x = i
   this.y = j
-  this.visited = false
+  this.visited = false // while building
+  this.walked = false // while searching
   this.walls = [true, true, true, true]
+
+  this.final = false // if is final space
 
   this.highlight = function() {
     var x = this.x * w
@@ -91,13 +119,19 @@ function Cell(i, j) {
     rect(x, y, w, w)
   }
 
-  this.getNeighbors = function() {
-    var neighbors = []
-
+  this.getNeigbors = function() {
     var top = grid[index(this.x, this.y - 1)]
     var right = grid[index(this.x + 1, this.y)]
     var bottom = grid[index(this.x, this.y + 1)]
     var left = grid[index(this.x - 1, this.y)]
+
+    return [top, right, bottom, left]
+  }
+
+  this.getNeighborsNotVisited = function() {
+    var neighbors = []
+
+    var [top, right, bottom, left] = this.getNeigbors()
 
     if (top && !top.visited) neighbors.push(top)
     if (right && !right.visited) neighbors.push(right)
@@ -107,8 +141,20 @@ function Cell(i, j) {
     return neighbors
   }
 
+  this.getFirstNeighbor = function() {
+    var [top, right, bottom, left] = this.getNeigbors()
+    var neighbors = []
+
+    if (top && !top.walked && !this.walls[0]) neighbors.push(top)
+    if (right && !right.walked && !this.walls[1]) neighbors.push(right)
+    if (bottom && !bottom.walked && !this.walls[2]) neighbors.push(bottom)
+    if (left && !left.walked && !this.walls[3]) neighbors.push(left)
+
+    return neighbors[floor(random(0, neighbors.length))]
+  }
+
   this.getRandomNeighbor = function() {
-    var neighbors = this.getNeighbors()
+    var neighbors = this.getNeighborsNotVisited()
     if (neighbors.length > 0) {
       var size = floor(random(0, neighbors.length))
       return neighbors[size]
@@ -125,7 +171,15 @@ function Cell(i, j) {
     if (this.walls[2]) line(x, y+w, x+w, y+w) //bottom
     if (this.walls[3]) line(x, y+w, x, y) // left
 
-    if (this.visited) {
+    if (this.walking) {
+      noStroke()
+      fill(0, 255, 0, 100)
+      rect(x, y, w, w)
+    } else if (this.walked) {
+      noStroke()
+      fill(0, 255, 0, 60)
+      rect(x, y, w, w)
+    } else if (this.visited) {
       noStroke()
       fill(255, 0, 255, 100)
       rect(x, y, w, w)
