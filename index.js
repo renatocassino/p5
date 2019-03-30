@@ -3,6 +3,7 @@ var w = 10
 var grid = []
 var current
 var stack = []
+var state = 'DRAWING'
 
 function setup() { 
   createCanvas(400, 400)
@@ -29,21 +30,22 @@ function draw() {
   current.visited = true
   current.highlight()
 
-  // step 1
-  var next = current.checkNeighbors()
-  if (next) {
-    next.visited = true
-
-    // step 2
-    stack.push(current)
-
-    // step 3
-    removeWall(current, next)
-
-    // step 4
-    current = next
-  } else if (stack.length > 0) {
-    current = stack.pop()
+  if (state === 'DRAWING') {
+    var next = current.getRandomNeighbor() // step 1
+    if (next) {
+      next.visited = true
+      stack.push(current) // step 2
+      removeWall(current, next) // step 3
+      current = next // step 4
+    } else if (stack.length > 0) {
+      do {
+        current = stack.pop()
+      } while(!current.getRandomNeighbor() && stack.length > 0)
+    } else {
+      state = 'SEARCH'
+    }
+  } else if (state === 'SEARCH') {
+    
   }
 }
 
@@ -89,7 +91,7 @@ function Cell(i, j) {
     rect(x, y, w, w)
   }
 
-  this.checkNeighbors = function() {
+  this.getNeighbors = function() {
     var neighbors = []
 
     var top = grid[index(this.x, this.y - 1)]
@@ -97,22 +99,16 @@ function Cell(i, j) {
     var bottom = grid[index(this.x, this.y + 1)]
     var left = grid[index(this.x - 1, this.y)]
 
-    if (top && !top.visited) {
-      neighbors.push(top)
-    }
+    if (top && !top.visited) neighbors.push(top)
+    if (right && !right.visited) neighbors.push(right)
+    if (bottom && !bottom.visited) neighbors.push(bottom)
+    if (left && !left.visited) neighbors.push(left)
 
-    if (right && !right.visited) {
-      neighbors.push(right)
-    }
+    return neighbors
+  }
 
-    if (bottom && !bottom.visited) {
-      neighbors.push(bottom)
-    }
-
-    if (left && !left.visited) {
-      neighbors.push(left)
-    }
-
+  this.getRandomNeighbor = function() {
+    var neighbors = this.getNeighbors()
     if (neighbors.length > 0) {
       var size = floor(random(0, neighbors.length))
       return neighbors[size]
