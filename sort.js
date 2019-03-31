@@ -6,6 +6,7 @@ var widthBar = widthCanvas / qtBars
 var i
 var j
 var state = 'RUN'
+var sort
 
 function setup() {
   createCanvas(widthCanvas, heightCanvas)
@@ -16,6 +17,7 @@ function setup() {
   })
   i = 0
   j = 1
+  sort = bubbleSortGenerator()
 }
 
 function createArray() {
@@ -37,26 +39,23 @@ function draw() {
   })
 
   if (state === 'RUN') {
-    order()
+    sort.next()
   }
 }
 
-function order() {
-  if (j < list.length - 1) {
-    j += 1
-  } else if (i < list.length - 2) {
-    i += 1
-    j = i + 1
-  } else {
-    state = 'DONE'
-  }
+function* bubbleSortGenerator() {
+  for(i = 0; i < list.length - 1; i++) {
+    for(j = i+1; j < list.length; j++) {
+      if (list[i].value > list[j].value) {
+        var aux = list[i]
+        list[i] = list[j]
+        list[j] = aux
+        list[j].index = j
+        list[i].index = i
+      }
 
-  if(list[i].value > list[j].value) {
-    var aux = list[i]
-    list[i] = list[j]
-    list[j] = aux
-    list[j].index = j
-    list[i].index = i
+      yield
+    }
   }
 }
 
