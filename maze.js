@@ -1,5 +1,5 @@
 var cols, rows
-var w = 15
+var w = 10
 var grid = []
 var current
 var stack = []
@@ -7,7 +7,7 @@ var state = 'DRAWING'
 var backDrawing = false
 
 function setup() { 
-  createCanvas(400, 400)
+  createCanvas(800, 600)
   frameRate(50)
   cols = floor(width/w)
   rows = floor(height/w)
@@ -23,11 +23,14 @@ function setup() {
   grid[floor(parseInt(grid.length-1)/2) - 10].final = true
 } 
 
-function draw() { 
+let counter = 0
+
+function draw() {
   background(51)
   for (let i = 0; i < grid.length; i++) {
     grid[i].show()
   }
+  counter = 0
 
   current.visited = true
   current.highlight()
@@ -171,6 +174,7 @@ function Cell(i, j) {
   }
 
   this.show = function () {
+    if (!this.visited && !this.walked) return
     var x = this.x * w
     var y = this.y * w
 
