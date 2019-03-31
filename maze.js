@@ -1,5 +1,5 @@
 var cols, rows
-var w = 50
+var w = 15
 var grid = []
 var current
 var stack = []
@@ -8,7 +8,7 @@ var backDrawing = false
 
 function setup() { 
   createCanvas(400, 400)
-  frameRate(5)
+  frameRate(50)
   cols = floor(width/w)
   rows = floor(height/w)
 
@@ -20,7 +20,7 @@ function setup() {
   }
 
   current = grid[0]
-  grid[grid.length-1].final = true
+  grid[floor(parseInt(grid.length-1)/2) - 10].final = true
 } 
 
 function draw() { 
@@ -51,6 +51,7 @@ function draw() {
       state = 'SEARCH'
     }
   } else if (state === 'SEARCH') {
+    frameRate(8)
     if (current.final) {
       state = 'FINISHED'
       return
@@ -131,7 +132,11 @@ function Cell(i, j) {
   this.getNeighborsNotVisited = function() {
     var neighbors = []
 
-    var [top, right, bottom, left] = this.getNeigbors()
+    var neighborsPosition = this.getNeigbors()
+    var top = neighborsPosition[0]
+    var right = neighborsPosition[1]
+    var bottom = neighborsPosition[2]
+    var left = neighborsPosition[3]
 
     if (top && !top.visited) neighbors.push(top)
     if (right && !right.visited) neighbors.push(right)
@@ -142,7 +147,11 @@ function Cell(i, j) {
   }
 
   this.getFirstNeighbor = function() {
-    var [top, right, bottom, left] = this.getNeigbors()
+    var neighborsPosition = this.getNeigbors()
+    var top = neighborsPosition[0]
+    var right = neighborsPosition[1]
+    var bottom = neighborsPosition[2]
+    var left = neighborsPosition[3]
     var neighbors = []
 
     if (top && !top.walked && !this.walls[0]) neighbors.push(top)
@@ -171,7 +180,11 @@ function Cell(i, j) {
     if (this.walls[2]) line(x, y+w, x+w, y+w) //bottom
     if (this.walls[3]) line(x, y+w, x, y) // left
 
-    if (this.walking) {
+    if (this.final) {
+      noStroke()
+      fill(255, 0, 0, 100)
+      rect(x, y, w, w)
+    } else if (this.walking) {
       noStroke()
       fill(0, 255, 0, 100)
       rect(x, y, w, w)
