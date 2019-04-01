@@ -1,8 +1,8 @@
-const qtGaps = 5
+const qtGaps = 4
 const tireSize = 20
-const tapes = [2, 3]
+const tapes = [12, 9]
 
-const gaps = [2, 5, 8, 11, 15]
+const gaps = [1, 2, 3, 13]
 
 const newTire = (index) => {
   const gapsClone = [...gaps]
@@ -16,8 +16,7 @@ const newTire = (index) => {
 }
 
 // retornar o quantos furos foram tapados
-const addTape = (_tire, tapeSize) => {
-  const tire = [..._tire]
+const addTape = (tire, tapeSize) => {
   const position = tire[0]
   const newPosition = position + tapeSize
 
@@ -37,7 +36,13 @@ const addTape = (_tire, tapeSize) => {
 }
 
 const solveTire = (tire, tireSize = 0, tapeSize) => {
-  debugger
+  if (!tapeSize) {
+    return Math.min(
+      solveTire(tire, tireSize, tapes[0]),
+      solveTire(tire, tireSize, tapes[1]),
+    )
+  }
+
   const newIndex = addTape(tire, tapeSize)
   if (newIndex === -1) return tireSize + tapeSize
 
@@ -53,10 +58,7 @@ const run = () => {
 
   let less = null
   while(i < qtGaps) {
-    const minSize = Math.min(
-      solveTire(newTire(i), 0, tapes[0]),
-      solveTire(newTire(i), 0, tapes[1]),
-    )
+    const minSize = solveTire(newTire(i))
 
     if (less === null || minSize < less) less = minSize
     i++
