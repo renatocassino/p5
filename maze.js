@@ -1,5 +1,5 @@
 var cols, rows
-var w = 20
+var w = 30
 var grid = []
 var current
 var stack = []
@@ -7,7 +7,7 @@ var state = 'DRAWING'
 var backDrawing = false
 
 function setup() { 
-  createCanvas(800, 600)
+  createCanvas(780, 600)
   frameRate(50)
   cols = floor(width/w)
   rows = floor(height/w)
@@ -20,7 +20,7 @@ function setup() {
   }
 
   current = grid[0]
-  grid[floor(parseInt(grid.length-1)/2) - 10].final = true
+  grid[grid.length-1].final = true
 } 
 
 let counter = 0
@@ -198,7 +198,7 @@ function Cell(i, j) {
       rect(x, y, w, w)
     } else if (this.visited) {
       noStroke()
-      fill(255, 0, 255, 100)
+      fill(255, 255, 255, 100)
       rect(x, y, w, w)
     }
   }
