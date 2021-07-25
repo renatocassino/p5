@@ -27,3 +27,14 @@ Examples in hashTable.ts file.
 All data save a list of buckets with name and value. When have a collision, just add a new value in array.
 
 https://en.wikipedia.org/wiki/Hash_table#Collision_resolution
+
+Pros:
+
+Fast Lookups * (Good collision resolution needed)
+Fast inserts
+Flexible Keys
+
+Cons:
+
+Unordered
+Slow key iteration
